@@ -1,0 +1,16 @@
+{
+  "name": "ds-to-wechat",
+  "version": "0.0.1",
+  "description": "一个将deepseek集成到自己的公众号的nodejs项目",
+  "main": "app.js",
+  "scripts": {
+    "dev": "node app.js"
+  },
+  "author": "南秋SouthAki",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "openai": "^4.81.0"
+  }
+}
