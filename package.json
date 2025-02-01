@@ -9,6 +9,8 @@
   "author": "南秋SouthAki",
   "license": "GPL-3.0",
   "dependencies": {
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "openai": "^4.81.0"
