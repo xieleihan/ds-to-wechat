@@ -21,6 +21,12 @@ const OpenAI = require('openai');
 const cors = require('cors');
 // 导入crypto
 const crypto = require('crypto');
+// 导入xml2js
+const xml2js = require('xml2js');
+// 导入Wechat
+const wechat = require('wechat');
+// 导入AXIOS
+const axios = require('axios');
 
 // 加载环境变量
 dotenv.config();
@@ -31,6 +37,7 @@ const deepseek_api_base_url = process.env.DEEPSEEK_API_BASE_URL;
 const moonshot_api_key = process.env.MOONSHOT_API_KEY;
 const moonshot_api_base_url = process.env.MOONSHOT_API_BASE_URL;
 const wechat_config_token = process.env.WECHAT_CONFIG_TOKEN;
+const wechat_config_appid = process.env.WECHAT_CONFIG_APPID;
 
 // 创建express实例
 const app = express();
@@ -55,20 +62,11 @@ const openai = new OpenAI({
 // 微信公众号配置信息
 const wxConfig = {
     token: wechat_config_token,
+    appid: wechat_config_appid,
 }
 
 // 创建路由(测试使用GET)
 app.get('/', (req, res) =>{
-    res.send('Hello World');
-})
-
-// 创建路由(测试使用POST)
-app.post('/', (req, res) =>{
-    res.send('Hello World');
-})
-
-// 微信接口验证
-app.get("/verify", async (req, res) => {
     // 获取请求参数
     const { signature, timestamp, nonce, echostr } = req.query;
 
@@ -81,6 +79,26 @@ app.get("/verify", async (req, res) => {
         throw new Error('如果签名错误');
     }
 })
+
+// 创建路由(测试使用POST)
+app.post('/', (req, res) =>{
+    res.send('Hello World');
+})
+
+// 微信接口验证
+// app.get("/verify", async (req, res) => {
+//     // 获取请求参数
+//     const { signature, timestamp, nonce, echostr } = req.query;
+
+//     // 解密信息
+//     if (checkSignature(signature, timestamp, nonce, wxConfig.token)) {
+//         // 如果签名正确，原样返回echostr参数内容
+//         res.send(echostr);
+//     } else {
+//         // 如果签名错误，返回错误信息
+//         throw new Error('如果签名错误');
+//     }
+// })
 
 // 使用OpenAI的路由
 app.get('/moonshot', async (req, res) => {
@@ -112,7 +130,25 @@ app.get('/moonshot', async (req, res) => {
     })
 })
 
+app.use('/wechat', wechat(wxConfig, async (req, res) => {
+    console.log("触发提醒")
+    const message = req.weixin;
+    console.log("收到微信消息:", message);
+
+    try {
+        const response = await axios.get('http://localhost:3000/moonshot', {
+            params: { prompt: message.Content }
+        });
+
+        console.log("AI 回复:", response.data.data);
+        res.reply(response.data.data);
+    } catch (error) {
+        console.error("微信消息处理错误:", error);
+        res.reply("服务器暂时无法处理您的请求，请稍后再试。");
+    }
+}));
+
 // 监听端口
-app.listen(80, () => {
-    console.log('Server is running on port 80');
+app.listen(3000, () => {
+    console.log('Server is running on port 3000');
 })
