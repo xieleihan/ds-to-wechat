@@ -66,7 +66,7 @@ const wxConfig = {
 }
 
 // 创建路由(测试使用GET)
-app.get('/', (req, res) =>{
+app.get('/wechat', (req, res) =>{
     // 获取请求参数
     const { signature, timestamp, nonce, echostr } = req.query;
 
